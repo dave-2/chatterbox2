@@ -1,15 +1,15 @@
 {
   "name": "chatterbox2",
   "version": "0.0.0",
-  "private": true,
   "scripts": {
-    "test": "tsc --noEmit",
-    "start": "twilio-run --functions-folder dist/functions --assets-folder dist/assets",
-    "deploy": "twilio-run deploy --functions-folder dist/functions --assets-folder dist/assets --runtime node12 --production",
     "build": "tsc && npm run build:copy-assets",
     "build:copy-assets": "copyfiles src/assets/* src/assets/**/* --up 2 --exclude **/*.ts dist/assets/",
+    "test": "tsc --noEmit",
     "prestart": "npm run build",
-    "predeploy": "npm run build"
+    "start": "twilio-run --functions-folder dist/functions --assets-folder dist/assets",
+    "predeploy": "npm run build",
+    "deploy": "twilio-run deploy --functions-folder dist/functions --assets-folder dist/assets --runtime node12",
+    "promote": "twilio-run promote --to= --from=dev"
   },
   "dependencies": {
     "@twilio-labs/serverless-runtime-types": "^1.1.8"
