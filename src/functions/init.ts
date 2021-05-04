@@ -8,6 +8,8 @@ import {
 const SYNC_SERVICE_ID = 'default';
 const SYNC_DOCUMENT_NAME = 'status';
 
+// TODO: Create a wrapper around fetch() that automatically
+// creates and bootstraps the status document.
 export const handler: ServerlessFunctionSignature = async function (
   context: Context,
   event: {},
@@ -21,7 +23,7 @@ export const handler: ServerlessFunctionSignature = async function (
       uniqueName: SYNC_DOCUMENT_NAME,
     })
   } catch (error) {
-    callback(null, error);
+    callback(error);
     return;
   }
 

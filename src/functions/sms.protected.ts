@@ -6,7 +6,7 @@ import {
 const SYNC_SERVICE_ID = 'default';
 const SYNC_DOCUMENT_NAME = 'status';
 
-type RequestParameters = { Body?: string, From?: string };
+type RequestParameters = { Body: string, From: string };
 type Status = {
   allowMultipleOpens: boolean,
   lockTime: Date,
@@ -15,40 +15,35 @@ type Status = {
   users: { [number: string]: string },
 };
 
-export const handler: ServerlessFunctionSignature = async function (
-  context: Context, event: RequestParameters, callback: ServerlessCallback) {
-  const response = new Twilio.twiml.MessagingResponse();
+export const handler: ServerlessFunctionSignature<{}, RequestParameters> = async function (
+  context: Context, event: RequestParameters, callback: ServerlessCallback
+) {
   try {
+    const response = new Twilio.twiml.MessagingResponse();
     response.message(await main(context, event));
+    callback(null, response);
   } catch (error) {
-    response.message(`There was an error. 😿 ${error}`);
+    callback(error);
   }
-  return callback(null, response)
 }
 
-async function main(
-  context: Context, event: RequestParameters
-): Promise<string> {
+async function main(context: Context, event: RequestParameters): Promise<string> {
   const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
   const document = await syncService.documents(SYNC_DOCUMENT_NAME).fetch();
   const status: Status = document.data;
 
-  if (!event.From || !status.users.hasOwnProperty(event.From))
+  if (!status.users.hasOwnProperty(event.From))
     return 'No permissions to grant access. :(';
-
-  if (!event.Body)
-    return 'Could not understand. 🐼 Try giving me a number.';
 
   const command = event.Body.split(' ')[0].toLowerCase();
 
   const minutes = Number(command);
   if (!isNaN(minutes))
-    return handleMinutes(context, status, event.From, minutes);
+    return handleUnlock(context, status, event.From, minutes);
 
   switch (command) {
     case 'adduser':
       return handleAddUser(context, status, event.Body);
-    case 'close':
     case 'lock':
       return handleLock(context, status, event.From);
     case 'removeuser':
@@ -60,14 +55,14 @@ async function main(
   }
 };
 
-async function handleMinutes(
+async function handleUnlock(
   context: Context, status: Status, user: string, minutes: number
 ): Promise<string> {
   const lockTime = new Date();
   lockTime.setMinutes(lockTime.getMinutes() + minutes);
 
   const newStatus = { allowMultipleOpens: false, lockTime, user };
-  await update(context, status, newStatus);
+  await updateStatus(context, status, newStatus);
 
   const timeOptions = { timeZone: 'America/Los_Angeles' };
   const timeString = lockTime.toLocaleTimeString('en-US', timeOptions);
@@ -80,20 +75,19 @@ async function handleAddUser(
 ): Promise<string> {
   const match = body.match(/^adduser (\w+) (\+1\d{10})$/i);
   if (!match)
-    return 'Syntax: AddUser <name> <phone number in the format +11234567890>';
+    return 'Syntax: AddUser <name> ' +
+      '<phone number in E.164 format (Ex: +14151234567)>';
 
   const [_, name, number] = match;
   const newStatus = { users: { ...status.users, [number]: name } };
-  await update(context, status, newStatus);
+  await updateStatus(context, status, newStatus);
 
   return `Added ${name} at ${number}. 🦆`;
 }
 
-async function handleLock(
-  context: Context, status: Status, user: string
-): Promise<string> {
+async function handleLock(context: Context, status: Status, user: string): Promise<string> {
   const newStatus = { allowMultipleOpens: false, lockTime: new Date(), user };
-  await update(context, status, newStatus);
+  await updateStatus(context, status, newStatus);
 
   return "The door's locked. 🦡 " +
     'Reply back with a number of minutes to re-unlock.';
@@ -114,7 +108,7 @@ async function handleRemoveUser(
         return "Can't remove yourself, dummy! 🐓"
 
       delete status.users[number];
-      await update(context, status, { users: status.users });
+      await updateStatus(context, status, { users: status.users });
       return `Removed ${userName}. 🦆`;
     }
   }
@@ -129,9 +123,8 @@ function handleStatus(status: Status): string {
   return Object.entries(status).map(stringifier).join('\n');
 }
 
-async function update(context: Context, status: Status, newStatus: any) {
+async function updateStatus(context: Context, status: Status, newStatus: any) {
   const data = { ...status, ...newStatus };
-
   const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
   await syncService.documents(SYNC_DOCUMENT_NAME).update({ data });
 }
