@@ -1,8 +1,11 @@
 # Dependency directories
 node_modules/
 
-# dotenv environment variables file
-.env
+# Dotenv environment variables file containing ACCOUNT_SID and AUTH_TOKEN
+*.env
 
-# build output
+# Project config file containing serviceSid and latestBuild
+.twilio-functions
+
+# Build output
 dist

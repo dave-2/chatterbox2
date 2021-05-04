@@ -8,7 +8,7 @@ import {
 const SYNC_SERVICE_ID = 'default';
 const SYNC_DOCUMENT_NAME = 'status';
 
-export const handler: ServerlessFunctionSignature = async function(
+export const handler: ServerlessFunctionSignature = async function (
   context: Context,
   event: {},
   callback: ServerlessCallback

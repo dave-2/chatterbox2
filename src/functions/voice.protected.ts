@@ -1,8 +1,6 @@
 import '@twilio-labs/serverless-runtime-types';
 import {
-  Context,
-  ServerlessCallback,
-  ServerlessFunctionSignature,
+  Context, ServerlessCallback, ServerlessFunctionSignature,
 } from '@twilio-labs/serverless-runtime-types/types';
 
 const SYNC_SERVICE_ID = 'default';
@@ -17,11 +15,9 @@ type Status = {
   users: { [number: string]: string },
 };
 
-export const handler: ServerlessFunctionSignature = async function(
+export const handler: ServerlessFunctionSignature = async function (
   context: Context, event: RequestParameters, callback: ServerlessCallback) {
-  const client = context.getTwilioClient();
-  const syncService = client.sync.services(SYNC_SERVICE_ID);
-
+  const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
   const document = await syncService.documents(SYNC_DOCUMENT_NAME).fetch();
   const status: Status = document.data;
 
@@ -39,15 +35,8 @@ export const handler: ServerlessFunctionSignature = async function(
       });
     }
 
-    await syncService.documents(SYNC_DOCUMENT_NAME).update({
-      data: {
-        allowMultipleOpens: false,
-        lockTime: new Date(),
-        phoneNumber: status.phoneNumber,
-        user: status.user,
-        users: status.users,
-      },
-    });
+    const newStatus = { allowMultipleOpens: false, lockTime: new Date() };
+    await update(context, status, newStatus);
 
     return;
   }
@@ -58,3 +47,10 @@ export const handler: ServerlessFunctionSignature = async function(
     dial.number(user);
   callback(null, response);
 };
+
+async function update(context: Context, status: Status, newStatus: any) {
+  const data = { ...status, ...newStatus };
+
+  const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
+  await syncService.documents(SYNC_DOCUMENT_NAME).update({ data });
+}
