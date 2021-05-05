@@ -35,6 +35,9 @@ async function main(context: Context, event: RequestParameters): Promise<void> {
   const status: Status = document.data;
 
   for (const user in status.users) {
+    if (user === event.To)
+      continue;
+
     await context.getTwilioClient().messages.create({
       body: `${status.users[event.To]} answered the door. 🐕`,
       from: status.phoneNumber,
