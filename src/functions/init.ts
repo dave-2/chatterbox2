@@ -1,12 +1,12 @@
-import '@twilio-labs/serverless-runtime-types';
+import "@twilio-labs/serverless-runtime-types";
 import {
   Context,
   ServerlessCallback,
   ServerlessFunctionSignature,
-} from '@twilio-labs/serverless-runtime-types/types';
+} from "@twilio-labs/serverless-runtime-types/types";
 
-const SYNC_SERVICE_ID = 'default';
-const SYNC_DOCUMENT_NAME = 'status';
+const SYNC_SERVICE_ID = "default";
+const SYNC_DOCUMENT_NAME = "status";
 
 // TODO: Create a wrapper around fetch() that automatically
 // creates and bootstraps the status document.
@@ -21,11 +21,11 @@ export const handler: ServerlessFunctionSignature = async function (
     await syncService.documents.create({
       data: {},
       uniqueName: SYNC_DOCUMENT_NAME,
-    })
+    });
   } catch (error) {
     callback(error);
     return;
   }
 
-  callback(null, 'Initialized!');
+  callback(null, "Initialized!");
 };
