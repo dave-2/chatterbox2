@@ -45,17 +45,24 @@ async function main(context: Context, event: RequestParameters) {
 
 async function handleOpen(context: Context, status: Status) {
   for (const user in status.users) {
+    const unlockDurationMs = new Date(status.lockTime).getTime() - Date.now();
+    const unlockDurationMinutes = Math.floor(unlockDurationMs / 60000);
+    const lockStatus = status.allowMultipleOpens
+      ? `It's unlocked for ${unlockDurationMinutes} more minutes.`
+      : "It's now locked.";
     await context.getTwilioClient().messages.create({
       body:
-        `Door opened because ${status.users[status.user]} unlocked it. ` +
-        "🦦 It's now locked.",
+        `Door opened because ${status.users[status.user]} unlocked it. 🦦 ` +
+        lockStatus,
       from: status.phoneNumber,
       to: user,
     });
   }
 
-  const newStatus = { allowMultipleOpens: false, lockTime: new Date() };
-  await updateStatus(context, status, newStatus);
+  if (!status.allowMultipleOpens) {
+    const newStatus = { lockTime: new Date() };
+    await updateStatus(context, status, newStatus);
+  }
 
   const response = new Twilio.twiml.VoiceResponse();
   response.play({ digits: "9" });

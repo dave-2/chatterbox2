@@ -46,9 +46,18 @@ async function main(
 
   const command = event.Body.split(" ")[0].toLowerCase();
 
-  const minutes = Number(command);
-  if (!isNaN(minutes))
-    return handleUnlock(context, status, event.From, minutes);
+  const match = /^([0-9]+)(\+?)/.exec(command);
+  if (match) {
+    const minutes = Number(match[1]);
+    const allowMultipleOpens = Boolean(match[2]);
+    return handleUnlock(
+      context,
+      status,
+      event.From,
+      minutes,
+      allowMultipleOpens
+    );
+  }
 
   switch (command) {
     case "adduser":
@@ -68,12 +77,13 @@ async function handleUnlock(
   context: Context,
   status: Status,
   user: string,
-  minutes: number
+  minutes: number,
+  allowMultipleOpens: boolean
 ): Promise<string> {
   const lockTime = new Date();
   lockTime.setMinutes(lockTime.getMinutes() + minutes);
 
-  const newStatus = { allowMultipleOpens: false, lockTime, user };
+  const newStatus = { allowMultipleOpens, lockTime, user };
   await updateStatus(context, status, newStatus);
 
   const timeOptions = { timeZone: "America/Los_Angeles" };
