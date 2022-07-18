@@ -23,7 +23,7 @@ export const handler: ServerlessFunctionSignature = async function (
       uniqueName: SYNC_DOCUMENT_NAME,
     });
   } catch (error) {
-    callback(error);
+    callback(String(error));
     return;
   }
 

@@ -2,13 +2,14 @@ import "@twilio-labs/serverless-runtime-types";
 import {
   Context,
   ServerlessCallback,
+  ServerlessEventObject,
   ServerlessFunctionSignature,
 } from "@twilio-labs/serverless-runtime-types/types";
 
 const SYNC_SERVICE_ID = "default";
 const SYNC_DOCUMENT_NAME = "status";
 
-type RequestParameters = {};
+type RequestParameters = {} & ServerlessEventObject;
 type Status = {
   allowMultipleOpens: boolean;
   lockTime: Date;
@@ -26,7 +27,7 @@ export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
     try {
       callback(null, await main(context, event));
     } catch (error) {
-      callback(error);
+      callback(String(error));
     }
   };
 

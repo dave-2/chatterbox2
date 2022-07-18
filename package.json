@@ -8,7 +8,7 @@
     "prestart": "npm run build",
     "start": "twilio-run --functions-folder dist/functions --assets-folder dist/assets",
     "predeploy": "npm run build",
-    "deploy": "twilio-run deploy --functions-folder dist/functions --assets-folder dist/assets --runtime node12",
+    "deploy": "twilio-run deploy --functions-folder dist/functions --assets-folder dist/assets --runtime node14 --override-existing-project",
     "promote": "twilio-run promote --to= --from=dev"
   },
   "dependencies": {
