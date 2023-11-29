@@ -8,7 +8,7 @@
     "prestart": "npm run build",
     "start": "twilio-run --functions-folder dist/functions --assets-folder dist/assets",
     "predeploy": "npm run build",
-    "deploy": "twilio-run deploy --functions-folder dist/functions --assets-folder dist/assets --runtime node16 --override-existing-project",
+    "deploy": "twilio-run deploy --functions-folder dist/functions --assets-folder dist/assets --runtime node18 --override-existing-project",
     "promote": "twilio-run promote --to= --from=dev"
   },
   "dependencies": {
@@ -21,6 +21,6 @@
     "typescript": "^5.0.4"
   },
   "engines": {
-    "node": "16"
+    "node": "18"
   }
 }
