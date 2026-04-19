@@ -22,7 +22,7 @@ export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
   async function (
     context: Context,
     event: RequestParameters,
-    callback: ServerlessCallback
+    callback: ServerlessCallback,
   ) {
     try {
       callback(null, await main(context, event));
@@ -78,7 +78,7 @@ async function handleDial(status: Status) {
         statusCallback: "/dialCallback",
         statusCallbackEvent: ["answered"],
       },
-      user
+      user,
     );
   }
   return response;

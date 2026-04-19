@@ -13,7 +13,7 @@ const SYNC_DOCUMENT_NAME = "status";
 export const handler: ServerlessFunctionSignature = async function (
   context: Context,
   event: {},
-  callback: ServerlessCallback
+  callback: ServerlessCallback,
 ) {
   try {
     const client = context.getTwilioClient();

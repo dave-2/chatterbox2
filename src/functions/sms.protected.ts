@@ -22,7 +22,7 @@ export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
   async function (
     context: Context,
     event: RequestParameters,
-    callback: ServerlessCallback
+    callback: ServerlessCallback,
   ) {
     try {
       const response = new Twilio.twiml.MessagingResponse();
@@ -35,7 +35,7 @@ export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
 
 async function main(
   context: Context,
-  event: RequestParameters
+  event: RequestParameters,
 ): Promise<string> {
   const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
   const document = await syncService.documents(SYNC_DOCUMENT_NAME).fetch();
@@ -55,7 +55,7 @@ async function main(
       status,
       event.From,
       minutes,
-      allowMultipleOpens
+      allowMultipleOpens,
     );
   }
 
@@ -78,7 +78,7 @@ async function handleUnlock(
   status: Status,
   user: string,
   minutes: number,
-  allowMultipleOpens: boolean
+  allowMultipleOpens: boolean,
 ): Promise<string> {
   const lockTime = new Date();
   lockTime.setMinutes(lockTime.getMinutes() + minutes);
@@ -97,7 +97,7 @@ async function handleUnlock(
 async function handleAddUser(
   context: Context,
   status: Status,
-  body: string
+  body: string,
 ): Promise<string> {
   const match = body.match(/^adduser (\w+) (\+1\d{10})$/i);
   if (!match)
@@ -116,7 +116,7 @@ async function handleAddUser(
 async function handleLock(
   context: Context,
   status: Status,
-  user: string
+  user: string,
 ): Promise<string> {
   const newStatus = { allowMultipleOpens: false, lockTime: new Date(), user };
   await updateStatus(context, status, newStatus);
@@ -131,7 +131,7 @@ async function handleRemoveUser(
   context: Context,
   status: Status,
   user: string,
-  body: string
+  body: string,
 ): Promise<string> {
   const match = body.match(/^removeuser (\w+)$/i);
   if (!match) return "Syntax: RemoveUser <name>";
