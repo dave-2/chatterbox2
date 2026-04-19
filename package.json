@@ -12,15 +12,15 @@
     "promote": "twilio-run promote --to= --from=dev"
   },
   "dependencies": {
-    "@twilio-labs/serverless-runtime-types": "^2.2.3"
+    "@twilio-labs/serverless-runtime-types": "^4.0.1"
   },
   "devDependencies": {
     "copyfiles": "^2.4.1",
-    "prettier": "2.8.8",
-    "twilio-run": "^3.5.3",
-    "typescript": "^5.0.4"
+    "prettier": "^3.8.1",
+    "twilio-run": "^5.0.1",
+    "typescript": "^6.0.3"
   },
   "engines": {
-    "node": "18"
+    "node": "22"
   }
 }
