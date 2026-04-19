@@ -5,7 +5,7 @@ node_modules/
 *.env
 
 # Project config file containing serviceSid and latestBuild
-.twilio-functions
+.twiliodeployinfo
 
 # Build output
 dist
