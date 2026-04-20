@@ -6,7 +6,7 @@ import {
   ServerlessFunctionSignature,
 } from "@twilio-labs/serverless-runtime-types/types";
 
-import { getStatus, updateStatus, Status } from "./status.private";
+import { getStatus, updateStatus, Status } from "../shared/status";
 
 type RequestParameters = { Body: string; From: string } & ServerlessEventObject;
 

@@ -1,4 +1,4 @@
-import { getStatus, updateStatus } from "../functions/status.private";
+import { getStatus, updateStatus } from "../shared/status";
 import { createMockContext } from "./test-utils";
 
 describe("status utility", () => {
