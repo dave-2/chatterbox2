@@ -19,6 +19,7 @@ type Status = {
   phoneNumber: string;
   user: string;
   users: { [number: string]: string };
+  guests: { [number: string]: string };
 };
 
 export const handler: ServerlessFunctionSignature<{}, RequestParameters> =

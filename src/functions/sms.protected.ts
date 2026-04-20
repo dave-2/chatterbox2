@@ -16,6 +16,7 @@ type Status = {
   phoneNumber: string;
   user: string;
   users: { [number: string]: string };
+  guests: { [number: string]: string };
 };
 
 export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
@@ -41,10 +42,19 @@ async function main(
   const document = await syncService.documents(SYNC_DOCUMENT_NAME).fetch();
   const status: Status = document.data;
 
-  if (!status.users.hasOwnProperty(event.From))
-    return "No permissions to grant access. :(";
+  const isUser = status.users.hasOwnProperty(event.From);
+  const isGuest = status.guests.hasOwnProperty(event.From);
+
+  if (!isUser && !isGuest) return "No permissions to grant access. :(";
 
   const command = event.Body.split(" ")[0].toLowerCase();
+
+  if (isGuest) {
+    if (command === "unlock") {
+      return handleUnlock(context, status, event.From, 5, false);
+    }
+    return "Guests can only use the 'unlock' command. 🔒";
+  }
 
   const match = /^([0-9]+)(\+?)/.exec(command);
   if (match) {
@@ -60,10 +70,14 @@ async function main(
   }
 
   switch (command) {
+    case "addguest":
+      return handleAddGuest(context, status, event.Body);
     case "adduser":
       return handleAddUser(context, status, event.Body);
     case "lock":
       return handleLock(context, status, event.From);
+    case "removeguest":
+      return handleRemoveGuest(context, status, event.From, event.Body);
     case "removeuser":
       return handleRemoveUser(context, status, event.From, event.Body);
     case "status":
@@ -92,6 +106,25 @@ async function handleUnlock(
     `You added ${minutes} minutes! 🐿 ` +
     `The door's unlocked until ${timeString}.`
   );
+}
+
+async function handleAddGuest(
+  context: Context,
+  status: Status,
+  body: string,
+): Promise<string> {
+  const match = body.match(/^addguest (\w+) (\+1\d{10})$/i);
+  if (!match)
+    return (
+      "Syntax: AddGuest <name> " +
+      "<phone number in E.164 format (Ex: +14151234567)>"
+    );
+
+  const [_, name, number] = match;
+  const newStatus = { guests: { ...status.guests, [number]: name } };
+  await updateStatus(context, status, newStatus);
+
+  return `Added guest ${name} at ${number}. 🐿`;
 }
 
 async function handleAddUser(
@@ -125,6 +158,28 @@ async function handleLock(
     "The door's locked. 🦡 " +
     "Reply back with a number of minutes to re-unlock."
   );
+}
+
+async function handleRemoveGuest(
+  context: Context,
+  status: Status,
+  user: string,
+  body: string,
+): Promise<string> {
+  const match = body.match(/^removeguest (\w+)$/i);
+  if (!match) return "Syntax: RemoveGuest <name>";
+
+  const [_, inputName] = match;
+  for (const number in status.guests) {
+    const userName = status.guests[number];
+    if (userName.toLowerCase() === inputName.toLowerCase()) {
+      delete status.guests[number];
+      await updateStatus(context, status, { guests: status.guests });
+      return `Removed guest ${userName}. 🦆`;
+    }
+  }
+
+  return `I don't know guest ${inputName}. 🐢`;
 }
 
 async function handleRemoveUser(

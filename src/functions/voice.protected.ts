@@ -16,6 +16,7 @@ type Status = {
   phoneNumber: string;
   user: string;
   users: { [number: string]: string };
+  guests: { [number: string]: string };
 };
 
 export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
@@ -50,9 +51,12 @@ async function handleOpen(context: Context, status: Status) {
     const lockStatus = status.allowMultipleOpens
       ? `It's unlocked for ${unlockDurationMinutes} more minutes.`
       : "It's now locked.";
+    
+    const senderName = status.users[status.user] || status.guests[status.user] || "someone";
+    
     await context.getTwilioClient().messages.create({
       body:
-        `Door opened because ${status.users[status.user]} unlocked it. 🦦 ` +
+        `Door opened because ${senderName} unlocked it. 🦦 ` +
         lockStatus,
       from: status.phoneNumber,
       to: user,
