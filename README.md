@@ -1,44 +1,45 @@
 # Chatterbox 2
 
-Programmable intercom system using Twilio Functions
+A programmable intercom system built on Twilio Serverless.
 
 ## Development
 
-Install NPM dependencies.
-
-```
-$ npm ci
-```
-
-Build.
-
-```
-$ npm run build
-```
+- **Install dependencies**
+  ```bash
+  npm ci
+  ```
+- **Build**
+  ```bash
+  npm run build
+  ```
+- **Test**
+  ```bash
+  npm test
+  ```
+- **Format**
+  ```bash
+  npm run format
+  ```
 
 ## Deployment
 
-Change the package `name` in `package.json` to the Twilio Functions service name.
+1. **Configure Environment**
 
-```
-  "name": "my-service-name",
-```
+   Create a `.env` file with your Twilio credentials and service name:
 
-Create a `.env` file in [dotenv](https://www.npmjs.com/package/dotenv) format containing `ACCOUNT_SID` and `AUTH_TOKEN`.
+   ```env
+   ACCOUNT_SID=ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   AUTH_TOKEN=your_auth_token
+   SERVICE_NAME=your-service-name
+   ```
 
-```
-ACCOUNT_SID=ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-AUTH_TOKEN=your_auth_token
-```
+1. **Deploy to Dev**
 
-Deploy to dev.
+   ```bash
+   npm run deploy
+   ```
 
-```
-$ npm run deploy
-```
-
-Promote to prod.
-
-```
-$ npm run promote
-```
+1. **Promote to Production**
+   ```bash
+   npm run promote
+   ```

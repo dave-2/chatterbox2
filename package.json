@@ -12,7 +12,7 @@
     "prestart": "npm run lint && npm run build",
     "start": "twilio-run --functions-folder dist/functions --assets-folder dist/assets",
     "predeploy": "npm run lint && npm test && npm run build",
-    "deploy": "twilio-run deploy --functions-folder dist/functions --assets-folder dist/assets --runtime node22 --override-existing-project",
+    "deploy": "npx dotenv-cli -- twilio-run deploy --service-name ${SERVICE_NAME:-chatterbox2} --functions-folder dist/functions --assets-folder dist/assets --runtime node22 --override-existing-project",
     "promote": "twilio-run promote --to= --from=dev",
     "prepare": "husky"
   },
@@ -23,6 +23,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
     "copyfiles": "^2.4.1",
+    "dotenv-cli": "^11.0.0",
     "esbuild": "^0.25.0",
     "husky": "^9.1.7",
     "jest": "^30.3.0",
