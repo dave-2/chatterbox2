@@ -1,12 +1,13 @@
 import "@twilio-labs/serverless-runtime-types";
-import {
+import type {
   Context,
   ServerlessCallback,
   ServerlessEventObject,
   ServerlessFunctionSignature,
 } from "@twilio-labs/serverless-runtime-types/types";
 
-import { getStatus, updateStatus, Status } from "../shared/status";
+import { getStatus, updateStatus } from "../shared/status";
+import type { Status } from "../shared/status";
 
 type RequestParameters = {} & ServerlessEventObject;
 

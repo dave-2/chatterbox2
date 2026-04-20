@@ -1,4 +1,4 @@
-import { Context } from "@twilio-labs/serverless-runtime-types/types";
+import type { Context } from "@twilio-labs/serverless-runtime-types/types";
 
 export type Status = {
   allowMultipleOpens: boolean;

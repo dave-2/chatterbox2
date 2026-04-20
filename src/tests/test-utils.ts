@@ -1,4 +1,4 @@
-import {
+import type {
   Context,
   ServerlessCallback,
 } from "@twilio-labs/serverless-runtime-types/types";
