@@ -16,9 +16,11 @@ export function createMockContext(data: any = {}): MockContext {
 
   const client = {
     sync: {
-      services: jest.fn().mockReturnValue({
-        documents: documentsMock,
-      }),
+      v1: {
+        services: jest.fn().mockReturnValue({
+          documents: documentsMock,
+        }),
+      },
     },
     messages: {
       create: jest.fn().mockResolvedValue({}),

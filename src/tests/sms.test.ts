@@ -85,7 +85,7 @@ describe("sms handler", () => {
       expect.stringContaining("You added 10 minutes!"),
     );
     expect(
-      context.getTwilioClient().sync.services().documents().update,
+      context.getTwilioClient().sync.v1.services().documents().update,
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ allowMultipleOpens: true }),
@@ -317,7 +317,8 @@ describe("sms handler", () => {
     const context = createMockContext(mockStatus);
     const error = new Error("Sync failure");
     (
-      context.getTwilioClient().sync.services().documents().fetch as jest.Mock
+      context.getTwilioClient().sync.v1.services().documents()
+        .fetch as jest.Mock
     ).mockRejectedValue(error);
 
     const event = { From: "+12223334444", Body: "status" } as any;

@@ -73,7 +73,7 @@ describe("voice handler", () => {
     await handler(context, event, callback);
 
     const client = context.getTwilioClient();
-    expect(client.sync.services().documents().update).toHaveBeenCalled();
+    expect(client.sync.v1.services().documents().update).toHaveBeenCalled();
   });
 
   it("should handle cases where status.user is a guest", async () => {
@@ -125,7 +125,8 @@ describe("voice handler", () => {
     const context = createMockContext(mockStatus);
     const error = new Error("Boom");
     (
-      context.getTwilioClient().sync.services().documents().fetch as jest.Mock
+      context.getTwilioClient().sync.v1.services().documents()
+        .fetch as jest.Mock
     ).mockRejectedValue(error);
 
     const event = {} as any;

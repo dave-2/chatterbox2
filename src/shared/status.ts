@@ -21,7 +21,9 @@ const DEFAULT_STATUS: Status = {
 };
 
 export async function getStatus(context: Context): Promise<Status> {
-  const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
+  const syncService = context
+    .getTwilioClient()
+    .sync.v1.services(SYNC_SERVICE_ID);
   try {
     const document = await syncService.documents(SYNC_DOCUMENT_NAME).fetch();
     return { ...DEFAULT_STATUS, ...document.data };
@@ -43,7 +45,9 @@ export async function updateStatus(
   newStatus: Partial<Status>,
 ): Promise<void> {
   const data = { ...status, ...newStatus };
-  const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
+  const syncService = context
+    .getTwilioClient()
+    .sync.v1.services(SYNC_SERVICE_ID);
   try {
     await syncService.documents(SYNC_DOCUMENT_NAME).update({ data });
   } catch (error: any) {

@@ -9,12 +9,12 @@ describe("status utility", () => {
 
       const context = createMockContext(null);
       const client = context.getTwilioClient();
-      client.sync.services().documents().fetch.mockRejectedValueOnce(error);
+      client.sync.v1.services().documents().fetch.mockRejectedValueOnce(error);
 
       const status = await getStatus(context);
 
       expect(status.users).toEqual({});
-      expect(client.sync.services().documents.create).toHaveBeenCalled();
+      expect(client.sync.v1.services().documents.create).toHaveBeenCalled();
     });
 
     it("should get status merged with document data", async () => {
@@ -30,7 +30,7 @@ describe("status utility", () => {
       const error = new Error("Boom");
       const context = createMockContext();
       const client = context.getTwilioClient();
-      client.sync.services().documents().fetch.mockRejectedValueOnce(error);
+      client.sync.v1.services().documents().fetch.mockRejectedValueOnce(error);
 
       await expect(getStatus(context)).rejects.toThrow("Boom");
     });
@@ -43,7 +43,7 @@ describe("status utility", () => {
       await updateStatus(context, status, { users: { "+19998887777": "Bob" } });
 
       const client = context.getTwilioClient();
-      expect(client.sync.services().documents().update).toHaveBeenCalledWith(
+      expect(client.sync.v1.services().documents().update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             users: { "+19998887777": "Bob" },
@@ -58,20 +58,20 @@ describe("status utility", () => {
 
       const context = createMockContext({ old: "data" });
       const client = context.getTwilioClient();
-      client.sync.services().documents().update.mockRejectedValueOnce(error);
+      client.sync.v1.services().documents().update.mockRejectedValueOnce(error);
 
       await updateStatus(context, {} as any, {
         users: { "+19998887777": "Bob" },
       });
 
-      expect(client.sync.services().documents.create).toHaveBeenCalled();
+      expect(client.sync.v1.services().documents.create).toHaveBeenCalled();
     });
 
     it("should throw non-404 errors", async () => {
       const error = new Error("Boom");
       const context = createMockContext();
       const client = context.getTwilioClient();
-      client.sync.services().documents().update.mockRejectedValueOnce(error);
+      client.sync.v1.services().documents().update.mockRejectedValueOnce(error);
 
       await expect(updateStatus(context, {} as any, {})).rejects.toThrow(
         "Boom",
