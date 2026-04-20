@@ -3,16 +3,14 @@
   "version": "0.0.0",
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "npm run build:bundle && npm run build:copy-assets",
-    "build:bundle": "npx esbuild src/functions/*.ts --bundle --platform=node --target=node22 --outdir=dist/functions --external:@twilio-labs/serverless-runtime-types",
-    "build:copy-assets": "copyfiles src/assets/* src/assets/**/* --up 2 --exclude **/*.ts dist/assets/",
+    "build": "npx esbuild src/functions/*.ts --bundle --platform=node --target=node22 --outdir=dist/functions --external:@twilio-labs/serverless-runtime-types",
     "format": "prettier --write .",
     "lint": "prettier --check .",
     "test": "jest",
     "prestart": "npm run lint && npm run build",
-    "start": "twilio-run --functions-folder dist/functions --assets-folder dist/assets",
+    "start": "twilio-run --functions-folder dist/functions",
     "predeploy": "npm run lint && npm test && npm run build",
-    "deploy": "npx dotenv-cli -- twilio-run deploy --service-name ${SERVICE_NAME:-chatterbox2} --functions-folder dist/functions --assets-folder dist/assets --runtime node22 --override-existing-project",
+    "deploy": "npx dotenv-cli -- twilio-run deploy --service-name ${SERVICE_NAME:-chatterbox2} --functions-folder dist/functions --runtime node22 --override-existing-project",
     "promote": "twilio-run promote --to= --from=dev",
     "prepare": "husky"
   },
@@ -22,7 +20,6 @@
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
-    "copyfiles": "^2.4.1",
     "dotenv-cli": "^11.0.0",
     "esbuild": "^0.25.0",
     "husky": "^9.1.7",
