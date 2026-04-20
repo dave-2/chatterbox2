@@ -2,7 +2,8 @@
   "name": "chatterbox2",
   "version": "0.0.0",
   "scripts": {
-    "build": "tsc && npm run build:copy-assets",
+    "build": "npm run build:bundle && npm run build:copy-assets",
+    "build:bundle": "npx esbuild src/functions/*.ts --bundle --platform=node --target=node22 --outdir=dist/functions --external:@twilio-labs/serverless-runtime-types",
     "build:copy-assets": "copyfiles src/assets/* src/assets/**/* --up 2 --exclude **/*.ts dist/assets/",
     "format": "prettier --write .",
     "lint": "prettier --check .",
@@ -21,6 +22,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
     "copyfiles": "^2.4.1",
+    "esbuild": "^0.25.0",
     "husky": "^9.1.7",
     "jest": "^30.3.0",
     "prettier": "^3.8.1",
