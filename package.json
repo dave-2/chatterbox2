@@ -6,7 +6,7 @@
     "build:copy-assets": "copyfiles src/assets/* src/assets/**/* --up 2 --exclude **/*.ts dist/assets/",
     "format": "prettier --write .",
     "lint": "prettier --check .",
-    "test": "tsc --noEmit",
+    "test": "jest",
     "prestart": "npm run lint && npm run build",
     "start": "twilio-run --functions-folder dist/functions --assets-folder dist/assets",
     "predeploy": "npm run lint && npm run build",
@@ -17,8 +17,12 @@
     "@twilio-labs/serverless-runtime-types": "^4.0.1"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.6.0",
     "copyfiles": "^2.4.1",
+    "jest": "^30.3.0",
     "prettier": "^3.8.1",
+    "ts-jest": "^29.4.9",
     "twilio-run": "^5.0.1",
     "typescript": "^6.0.3"
   },

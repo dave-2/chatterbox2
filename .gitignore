@@ -8,4 +8,5 @@ node_modules/
 .twiliodeployinfo
 
 # Build output
-dist
+dist/
+coverage/

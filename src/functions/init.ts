@@ -12,7 +12,7 @@ const SYNC_DOCUMENT_NAME = "status";
 // creates and bootstraps the status document.
 export const handler: ServerlessFunctionSignature = async function (
   context: Context,
-  event: {},
+  event: any,
   callback: ServerlessCallback,
 ) {
   try {
