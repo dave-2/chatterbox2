@@ -7,7 +7,7 @@ describe("sms handler", () => {
       "+12223334444": "Alice",
     },
     guests: {
-        "+19998887777": "Charlie"
+      "+19998887777": "Charlie"
     },
     phoneNumber: "+18889990000",
   };
@@ -75,7 +75,7 @@ describe("sms handler", () => {
     const twiml = (callback.mock.calls[0][1] as any);
     expect(twiml.message).toHaveBeenCalledWith(expect.stringContaining("You added 10 minutes!"));
     expect(context.getTwilioClient().sync.services().documents().update).toHaveBeenCalledWith(expect.objectContaining({
-        data: expect.objectContaining({ allowMultipleOpens: true })
+      data: expect.objectContaining({ allowMultipleOpens: true })
     }));
   });
 
@@ -158,12 +158,12 @@ describe("sms handler", () => {
   });
 
   it("should handle 'removeguest' with multiple guests", async () => {
-    const status = { 
-        ...mockStatus, 
-        guests: { 
-            "+10000000001": "Bob",
-            "+19998887777": "Charlie" 
-        } 
+    const status = {
+      ...mockStatus,
+      guests: {
+        "+10000000001": "Bob",
+        "+19998887777": "Charlie"
+      }
     };
     const context = createMockContext(status);
     const event = { From: "+12223334444", Body: "removeguest Charlie" } as any;
@@ -199,13 +199,13 @@ describe("sms handler", () => {
   });
 
   it("should handle 'removeuser' with multiple users", async () => {
-    const status = { 
-        ...mockStatus, 
-        users: { 
-            "+12223334444": "Alice",
-            "+10000000002": "Bob",
-            "+10000000003": "Charlie" 
-        } 
+    const status = {
+      ...mockStatus,
+      users: {
+        "+12223334444": "Alice",
+        "+10000000002": "Bob",
+        "+10000000003": "Charlie"
+      }
     };
     const context = createMockContext(status);
     const event = { From: "+12223334444", Body: "removeuser Charlie" } as any;
@@ -251,6 +251,17 @@ describe("sms handler", () => {
     expect(twiml.message).toHaveBeenCalledWith("I don't know Unknown. 🐢");
   });
 
+  it("should handle 'unlock' command", async () => {
+    const context = createMockContext(mockStatus);
+    const event = { From: "+12223334444", Body: "unlock" } as any;
+    const callback = createMockCallback();
+
+    await handler(context, event, callback);
+
+    const twiml = (callback.mock.calls[0][1] as any);
+    expect(twiml.message).toHaveBeenCalledWith(expect.stringContaining("You added 5 minutes!"));
+  });
+
   it("should handle unknown command", async () => {
     const context = createMockContext(mockStatus);
     const event = { From: "+12223334444", Body: "foobar" } as any;
@@ -266,7 +277,7 @@ describe("sms handler", () => {
     const context = createMockContext(mockStatus);
     const error = new Error("Sync failure");
     (context.getTwilioClient().sync.services().documents().fetch as jest.Mock).mockRejectedValue(error);
-    
+
     const event = { From: "+12223334444", Body: "status" } as any;
     const callback = createMockCallback();
 

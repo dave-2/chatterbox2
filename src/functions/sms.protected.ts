@@ -82,6 +82,8 @@ async function main(
       return handleRemoveUser(context, status, event.From, event.Body);
     case "status":
       return handleStatus(status);
+    case "unlock":
+      return handleUnlock(context, status, event.From, 5, false);
     default:
       return "Could not understand. 🐼 Try giving me a number.";
   }
