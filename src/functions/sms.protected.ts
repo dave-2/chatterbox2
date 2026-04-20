@@ -6,18 +6,9 @@ import {
   ServerlessFunctionSignature,
 } from "@twilio-labs/serverless-runtime-types/types";
 
-const SYNC_SERVICE_ID = "default";
-const SYNC_DOCUMENT_NAME = "status";
+import { getStatus, updateStatus, Status } from "./status.private";
 
 type RequestParameters = { Body: string; From: string } & ServerlessEventObject;
-type Status = {
-  allowMultipleOpens: boolean;
-  lockTime: Date;
-  phoneNumber: string;
-  user: string;
-  users: { [number: string]: string };
-  guests: { [number: string]: string };
-};
 
 export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
   async function (
@@ -38,12 +29,10 @@ async function main(
   context: Context,
   event: RequestParameters,
 ): Promise<string> {
-  const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
-  const document = await syncService.documents(SYNC_DOCUMENT_NAME).fetch();
-  const status: Status = document.data;
+  const status = await getStatus(context);
 
-  const isUser = status.users.hasOwnProperty(event.From);
-  const isGuest = status.guests.hasOwnProperty(event.From);
+  const isUser = !!status.users[event.From];
+  const isGuest = !!status.guests[event.From];
 
   if (!isUser && !isGuest) return "No permissions to grant access. :(";
 
@@ -213,10 +202,4 @@ function handleStatus(status: Status): string {
     return `${key}: ${JSON.stringify(value)}`;
   };
   return Object.entries(status).map(stringifier).join("\n");
-}
-
-async function updateStatus(context: Context, status: Status, newStatus: any) {
-  const data = { ...status, ...newStatus };
-  const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
-  await syncService.documents(SYNC_DOCUMENT_NAME).update({ data });
 }

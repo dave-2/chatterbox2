@@ -6,18 +6,9 @@ import {
   ServerlessFunctionSignature,
 } from "@twilio-labs/serverless-runtime-types/types";
 
-const SYNC_SERVICE_ID = "default";
-const SYNC_DOCUMENT_NAME = "status";
+import { getStatus, updateStatus, Status } from "./status.private";
 
 type RequestParameters = {} & ServerlessEventObject;
-type Status = {
-  allowMultipleOpens: boolean;
-  lockTime: Date;
-  phoneNumber: string;
-  user: string;
-  users: { [number: string]: string };
-  guests: { [number: string]: string };
-};
 
 export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
   async function (
@@ -33,9 +24,7 @@ export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
   };
 
 async function main(context: Context, event: RequestParameters) {
-  const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
-  const document = await syncService.documents(SYNC_DOCUMENT_NAME).fetch();
-  const status: Status = document.data;
+  const status = await getStatus(context);
 
   if (new Date(status.lockTime) > new Date()) {
     return handleOpen(context, status);
@@ -45,7 +34,7 @@ async function main(context: Context, event: RequestParameters) {
 }
 
 async function handleOpen(context: Context, status: Status) {
-  for (const user in status.users) {
+  for (const number in status.users) {
     const unlockDurationMs = new Date(status.lockTime).getTime() - Date.now();
     const unlockDurationMinutes = Math.floor(unlockDurationMs / 60000);
     const lockStatus = status.allowMultipleOpens
@@ -58,7 +47,7 @@ async function handleOpen(context: Context, status: Status) {
     await context.getTwilioClient().messages.create({
       body: `Door opened because ${senderName} unlocked it. 🦦 ` + lockStatus,
       from: status.phoneNumber,
-      to: user,
+      to: number,
     });
   }
 
@@ -75,20 +64,14 @@ async function handleOpen(context: Context, status: Status) {
 async function handleDial(status: Status) {
   const response = new Twilio.twiml.VoiceResponse();
   const dial = response.dial({ answerOnBridge: true });
-  for (const user in status.users) {
+  for (const number in status.users) {
     dial.number(
       {
         statusCallback: "/dialCallback",
         statusCallbackEvent: ["answered"],
       },
-      user,
+      number,
     );
   }
   return response;
-}
-
-async function updateStatus(context: Context, status: Status, newStatus: any) {
-  const data = { ...status, ...newStatus };
-  const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
-  await syncService.documents(SYNC_DOCUMENT_NAME).update({ data });
 }

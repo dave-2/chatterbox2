@@ -6,21 +6,12 @@ import {
   ServerlessFunctionSignature,
 } from "@twilio-labs/serverless-runtime-types/types";
 
-const SYNC_SERVICE_ID = "default";
-const SYNC_DOCUMENT_NAME = "status";
+import { getStatus, Status } from "./status.private";
 
 type RequestParameters = {
   CallStatus: string;
   To: string;
 } & ServerlessEventObject;
-type Status = {
-  allowMultipleOpens: boolean;
-  lockTime: Date;
-  phoneNumber: string;
-  user: string;
-  users: { [number: string]: string };
-  guests: { [number: string]: string };
-};
 
 export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
   async function (
@@ -39,15 +30,13 @@ export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
 async function main(context: Context, event: RequestParameters): Promise<void> {
   if (event.CallStatus !== "in-progress") return;
 
-  const syncService = context.getTwilioClient().sync.services(SYNC_SERVICE_ID);
-  const document = await syncService.documents(SYNC_DOCUMENT_NAME).fetch();
-  const status: Status = document.data;
+  const status = await getStatus(context);
 
-  for (const user in status.users) {
+  for (const number in status.users) {
     await context.getTwilioClient().messages.create({
-      body: `${user === event.To ? "You" : status.users[event.To]} answered the door. 🐕`,
+      body: `${number === event.To ? "You" : status.users[event.To]} answered the door. 🐕`,
       from: status.phoneNumber,
-      to: user,
+      to: number,
     });
   }
 }
