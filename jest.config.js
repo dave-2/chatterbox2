@@ -1,7 +1,6 @@
 module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
-  testPathIgnorePatterns: ["test-utils.ts"],
   collectCoverage: true,
   coverageThreshold: {
     global: {
