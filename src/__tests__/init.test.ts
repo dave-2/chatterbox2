@@ -16,8 +16,10 @@ describe("init handler", () => {
   it("should handle errors during initialization", async () => {
     const context = createMockContext();
     const error = new Error("Failed to create document");
-    (context.getTwilioClient().sync.services().documents.create as jest.Mock).mockRejectedValue(error);
-    
+    (
+      context.getTwilioClient().sync.services().documents.create as jest.Mock
+    ).mockRejectedValue(error);
+
     const event = {} as any;
     const callback = createMockCallback();
 

@@ -24,7 +24,10 @@ describe("voice handler", () => {
   });
 
   it("should open the door if locked in the future (unlocked state)", async () => {
-    const status = { ...mockStatus, lockTime: new Date(Date.now() + 5 * 60000).toISOString() };
+    const status = {
+      ...mockStatus,
+      lockTime: new Date(Date.now() + 5 * 60000).toISOString(),
+    };
     const context = createMockContext(status);
     const event = {} as any;
     const callback = createMockCallback();
@@ -33,15 +36,20 @@ describe("voice handler", () => {
 
     const client = context.getTwilioClient();
     expect(client.messages.create).toHaveBeenCalledTimes(2);
-    expect(client.messages.create).toHaveBeenCalledWith(expect.objectContaining({
-      body: expect.stringContaining("Door opened because Alice unlocked it"),
-    }));
-    
+    expect(client.messages.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: expect.stringContaining("Door opened because Alice unlocked it"),
+      }),
+    );
+
     expect(callback).toHaveBeenCalledWith(null, expect.any(Object));
   });
 
   it("should handle locked state (dial users)", async () => {
-    const status = { ...mockStatus, lockTime: new Date(Date.now() - 5 * 60000).toISOString() };
+    const status = {
+      ...mockStatus,
+      lockTime: new Date(Date.now() - 5 * 60000).toISOString(),
+    };
     const context = createMockContext(status);
     const event = {} as any;
     const callback = createMockCallback();
@@ -53,10 +61,10 @@ describe("voice handler", () => {
   });
 
   it("should lock the door after opening if allowMultipleOpens is false", async () => {
-    const status = { 
-        ...mockStatus, 
-        lockTime: new Date(Date.now() + 5 * 60000).toISOString(),
-        allowMultipleOpens: false 
+    const status = {
+      ...mockStatus,
+      lockTime: new Date(Date.now() + 5 * 60000).toISOString(),
+      allowMultipleOpens: false,
     };
     const context = createMockContext(status);
     const event = {} as any;
@@ -69,11 +77,11 @@ describe("voice handler", () => {
   });
 
   it("should handle cases where status.user is a guest", async () => {
-    const status = { 
-        ...mockStatus, 
-        lockTime: new Date(Date.now() + 5 * 60000).toISOString(),
-        user: "+19998887777",
-        guests: { "+19998887777": "Charlie" }
+    const status = {
+      ...mockStatus,
+      lockTime: new Date(Date.now() + 5 * 60000).toISOString(),
+      user: "+19998887777",
+      guests: { "+19998887777": "Charlie" },
     };
     const context = createMockContext(status);
     const event = {} as any;
@@ -82,16 +90,20 @@ describe("voice handler", () => {
     await handler(context, event, callback);
 
     const client = context.getTwilioClient();
-    expect(client.messages.create).toHaveBeenCalledWith(expect.objectContaining({
-      body: expect.stringContaining("Door opened because Charlie unlocked it"),
-    }));
+    expect(client.messages.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: expect.stringContaining(
+          "Door opened because Charlie unlocked it",
+        ),
+      }),
+    );
   });
 
   it("should handle unknown sender name", async () => {
-    const status = { 
-        ...mockStatus, 
-        lockTime: new Date(Date.now() + 5 * 60000).toISOString(),
-        user: "+10000000000"
+    const status = {
+      ...mockStatus,
+      lockTime: new Date(Date.now() + 5 * 60000).toISOString(),
+      user: "+10000000000",
     };
     const context = createMockContext(status);
     const event = {} as any;
@@ -100,16 +112,22 @@ describe("voice handler", () => {
     await handler(context, event, callback);
 
     const client = context.getTwilioClient();
-    expect(client.messages.create).toHaveBeenCalledWith(expect.objectContaining({
-      body: expect.stringContaining("Door opened because someone unlocked it"),
-    }));
+    expect(client.messages.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: expect.stringContaining(
+          "Door opened because someone unlocked it",
+        ),
+      }),
+    );
   });
 
   it("should handle errors", async () => {
     const context = createMockContext(mockStatus);
     const error = new Error("Boom");
-    (context.getTwilioClient().sync.services().documents().fetch as jest.Mock).mockRejectedValue(error);
-    
+    (
+      context.getTwilioClient().sync.services().documents().fetch as jest.Mock
+    ).mockRejectedValue(error);
+
     const event = {} as any;
     const callback = createMockCallback();
 

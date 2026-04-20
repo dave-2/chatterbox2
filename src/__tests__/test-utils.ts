@@ -1,4 +1,7 @@
-import { Context, ServerlessCallback } from "@twilio-labs/serverless-runtime-types/types";
+import {
+  Context,
+  ServerlessCallback,
+} from "@twilio-labs/serverless-runtime-types/types";
 
 export interface MockContext extends Context {
   getTwilioClient: jest.Mock;

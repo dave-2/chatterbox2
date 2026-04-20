@@ -43,12 +43,13 @@ describe("dialCallback handler", () => {
     expect(callback).toHaveBeenCalledWith(null);
   });
 
-
   it("should handle errors", async () => {
     const context = createMockContext(mockStatus);
     const error = new Error("Sync failed");
-    (context.getTwilioClient().sync.services().documents().fetch as jest.Mock).mockRejectedValue(error);
-    
+    (
+      context.getTwilioClient().sync.services().documents().fetch as jest.Mock
+    ).mockRejectedValue(error);
+
     const event = { CallStatus: "in-progress", To: "+15556667777" } as any;
     const callback = createMockCallback();
 
