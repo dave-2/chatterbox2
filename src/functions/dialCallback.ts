@@ -6,8 +6,8 @@ import type {
   ServerlessFunctionSignature,
 } from "@twilio-labs/serverless-runtime-types/types";
 
+import { notifyUsers } from "../shared/message";
 import { getStatus } from "../shared/status";
-import type { Status } from "../shared/status";
 
 type RequestParameters = {
   CallStatus: string;
@@ -33,11 +33,10 @@ async function main(context: Context, event: RequestParameters): Promise<void> {
 
   const status = await getStatus(context);
 
-  for (const number in status.users) {
-    await context.getTwilioClient().messages.create({
-      body: `${number === event.To ? "You" : status.users[event.To]} answered the door. 🐕`,
-      from: status.phoneNumber,
-      to: number,
-    });
-  }
+  await notifyUsers(
+    context,
+    status,
+    (number) =>
+      `${number === event.To ? "You" : status.users[event.To]} answered the door. 🐕`,
+  );
 }

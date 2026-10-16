@@ -30,7 +30,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "No permissions to grant access. :(",
+      "Chatterbox: No permissions to grant access. :( Reply STOP to opt out.",
     );
   });
 
@@ -56,7 +56,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Guests can only use the 'unlock' command. 🔒",
+      "Chatterbox: Guests can only use the 'unlock' command. 🔒 Reply STOP to opt out.",
     );
   });
 
@@ -131,7 +131,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Added guest Dave at +14155551234. 🐿",
+      "Chatterbox: Added guest Dave at +14155551234. 🐿 Reply STOP to opt out.",
     );
   });
 
@@ -160,7 +160,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Added Dave at +14155551234. 🦆",
+      "Chatterbox: Added Dave at +14155551234. 🦆 Reply STOP to opt out.",
     );
   });
 
@@ -187,7 +187,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "I don't know guest Charlie. 🐢",
+      "Chatterbox: I don't know guest Charlie. 🐢 Reply STOP to opt out.",
     );
   });
 
@@ -206,7 +206,9 @@ describe("sms handler", () => {
     await handler(context, event, callback);
 
     const twiml = callback.mock.calls[0][1] as any;
-    expect(twiml.message).toHaveBeenCalledWith("Removed guest Charlie. 🦆");
+    expect(twiml.message).toHaveBeenCalledWith(
+      "Chatterbox: Removed guest Charlie. 🦆 Reply STOP to opt out.",
+    );
   });
 
   it("should handle 'removeguest' not found", async () => {
@@ -218,7 +220,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "I don't know guest Unknown. 🐢",
+      "Chatterbox: I don't know guest Unknown. 🐢 Reply STOP to opt out.",
     );
   });
 
@@ -230,7 +232,9 @@ describe("sms handler", () => {
     await handler(context, event, callback);
 
     const twiml = callback.mock.calls[0][1] as any;
-    expect(twiml.message).toHaveBeenCalledWith("Syntax: RemoveGuest <name>");
+    expect(twiml.message).toHaveBeenCalledWith(
+      "Chatterbox: Syntax: RemoveGuest <name> Reply STOP to opt out.",
+    );
   });
 
   it("should handle 'removeuser' with multiple users", async () => {
@@ -249,7 +253,9 @@ describe("sms handler", () => {
     await handler(context, event, callback);
 
     const twiml = callback.mock.calls[0][1] as any;
-    expect(twiml.message).toHaveBeenCalledWith("Removed Charlie. 🦆");
+    expect(twiml.message).toHaveBeenCalledWith(
+      "Chatterbox: Removed Charlie. 🦆 Reply STOP to opt out.",
+    );
   });
 
   it("should prevent self-removal", async () => {
@@ -261,7 +267,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Can't remove yourself, dummy! 🐓",
+      "Chatterbox: Can't remove yourself, dummy! 🐓 Reply STOP to opt out.",
     );
   });
 
@@ -273,7 +279,9 @@ describe("sms handler", () => {
     await handler(context, event, callback);
 
     const twiml = callback.mock.calls[0][1] as any;
-    expect(twiml.message).toHaveBeenCalledWith("Syntax: RemoveUser <name>");
+    expect(twiml.message).toHaveBeenCalledWith(
+      "Chatterbox: Syntax: RemoveUser <name> Reply STOP to opt out.",
+    );
   });
 
   it("should handle 'removeuser' not found", async () => {
@@ -284,7 +292,9 @@ describe("sms handler", () => {
     await handler(context, event, callback);
 
     const twiml = callback.mock.calls[0][1] as any;
-    expect(twiml.message).toHaveBeenCalledWith("I don't know Unknown. 🐢");
+    expect(twiml.message).toHaveBeenCalledWith(
+      "Chatterbox: I don't know Unknown. 🐢 Reply STOP to opt out.",
+    );
   });
 
   it("should handle 'unlock' command", async () => {
@@ -309,7 +319,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Could not understand. 🐼 Try giving me a number.",
+      "Chatterbox: Could not understand. 🐼 Try giving me a number. Reply STOP to opt out.",
     );
   });
 

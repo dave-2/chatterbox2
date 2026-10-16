@@ -6,6 +6,7 @@ import type {
   ServerlessFunctionSignature,
 } from "@twilio-labs/serverless-runtime-types/types";
 
+import { notifyUsers } from "../shared/message";
 import { getStatus, updateStatus } from "../shared/status";
 import type { Status } from "../shared/status";
 
@@ -35,22 +36,20 @@ async function main(context: Context, event: RequestParameters) {
 }
 
 async function handleOpen(context: Context, status: Status) {
-  for (const number in status.users) {
-    const unlockDurationMs = new Date(status.lockTime).getTime() - Date.now();
-    const unlockDurationMinutes = Math.floor(unlockDurationMs / 60000);
-    const lockStatus = status.allowMultipleOpens
-      ? `It's unlocked for ${unlockDurationMinutes} more minutes.`
-      : "It's now locked.";
+  const unlockDurationMs = new Date(status.lockTime).getTime() - Date.now();
+  const unlockDurationMinutes = Math.floor(unlockDurationMs / 60000);
+  const lockStatus = status.allowMultipleOpens
+    ? `It's unlocked for ${unlockDurationMinutes} more minutes.`
+    : "It's now locked.";
 
-    const senderName =
-      status.users[status.user] || status.guests[status.user] || "someone";
+  const senderName =
+    status.users[status.user] || status.guests[status.user] || "someone";
 
-    await context.getTwilioClient().messages.create({
-      body: `Door opened because ${senderName} unlocked it. 🦦 ` + lockStatus,
-      from: status.phoneNumber,
-      to: number,
-    });
-  }
+  await notifyUsers(
+    context,
+    status,
+    () => `Door opened because ${senderName} unlocked it. 🦦 ` + lockStatus,
+  );
 
   if (!status.allowMultipleOpens) {
     const newStatus = { lockTime: new Date() };

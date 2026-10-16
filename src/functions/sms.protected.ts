@@ -6,6 +6,7 @@ import type {
   ServerlessFunctionSignature,
 } from "@twilio-labs/serverless-runtime-types/types";
 
+import { formatMessage } from "../shared/message";
 import { getStatus, updateStatus } from "../shared/status";
 import type { Status } from "../shared/status";
 
@@ -31,7 +32,15 @@ async function main(
   event: RequestParameters,
 ): Promise<string> {
   const status = await getStatus(context);
+  const message = await handleCommand(context, status, event);
+  return formatMessage(status, message);
+}
 
+async function handleCommand(
+  context: Context,
+  status: Status,
+  event: RequestParameters,
+): Promise<string> {
   const isUser = !!status.users[event.From];
   const isGuest = !!status.guests[event.From];
 
