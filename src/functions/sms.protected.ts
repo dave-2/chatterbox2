@@ -48,12 +48,26 @@ async function handleCommand(
 
   const command = event.Body.split(" ")[0].toLowerCase();
 
-  if (isGuest) {
-    if (command === "unlock") {
+  switch (command) {
+    case "help":
+    case "info":
+      return handleHelp(status);
+    case "start":
+    case "yes":
+    case "unstop":
+      return handleStart();
+    case "stop":
+    case "stopall":
+    case "unsubscribe":
+    case "cancel":
+    case "end":
+    case "quit":
+      return handleStop(context, status, event.From);
+    case "unlock":
       return handleUnlock(context, status, event.From, 5, false);
-    }
-    return "Guests can only use the 'unlock' command. 🔒";
   }
+
+  if (isGuest) return "Guests can only use the 'unlock' command. 🔒";
 
   const match = /^([0-9]+)(\+?)/.exec(command);
   if (match) {
@@ -81,11 +95,38 @@ async function handleCommand(
       return handleRemoveUser(context, status, event.From, event.Body);
     case "status":
       return handleStatus(status);
-    case "unlock":
-      return handleUnlock(context, status, event.From, 5, false);
     default:
       return "Could not understand. 🐼 Try giving me a number.";
   }
+}
+
+function handleHelp(status: Status): string {
+  return (
+    "Text 'unlock' (or a number of minutes) to unlock the door, or 'lock' to lock it. " +
+    `Contact the household owner at ${status.phoneNumber} for support. 🛟`
+  );
+}
+
+function handleStart(): string {
+  return (
+    "You are subscribed to intercom alerts. Message frequency varies. " +
+    "Message and data rates may apply. Reply HELP for help. 🟢"
+  );
+}
+
+async function handleStop(
+  context: Context,
+  status: Status,
+  from: string,
+): Promise<string> {
+  delete status.users[from];
+  delete status.guests[from];
+  await updateStatus(context, status, {
+    guests: status.guests,
+    users: status.users,
+  });
+
+  return "You have been unsubscribed and will receive no further messages. 🛑";
 }
 
 async function handleUnlock(

@@ -34,9 +34,84 @@ describe("sms handler", () => {
     );
   });
 
+  it.each(["HELP", "info"])(
+    "should handle %s keyword for users and guests",
+    async (keyword) => {
+      const context = createMockContext(mockStatus);
+      const event = { From: "+19998887777", Body: keyword } as any;
+      const callback = createMockCallback();
+
+      await handler(context, event, callback);
+
+      const twiml = callback.mock.calls[0][1] as any;
+      expect(twiml.message).toHaveBeenCalledWith(
+        "Chatterbox: Text 'unlock' (or a number of minutes) to unlock the door, or 'lock' to lock it. Contact the household owner at +18889990000 for support. 🛟 Reply STOP to opt out.",
+      );
+    },
+  );
+
+  it.each(["START", "yes", "unstop"])(
+    "should handle %s keyword for users and guests",
+    async (keyword) => {
+      const context = createMockContext(mockStatus);
+      const event = { From: "+19998887777", Body: keyword } as any;
+      const callback = createMockCallback();
+
+      await handler(context, event, callback);
+
+      const twiml = callback.mock.calls[0][1] as any;
+      expect(twiml.message).toHaveBeenCalledWith(
+        "Chatterbox: You are subscribed to intercom alerts. Message frequency varies. Message and data rates may apply. Reply HELP for help. 🟢 Reply STOP to opt out.",
+      );
+    },
+  );
+
+  it.each(["STOP", "stopall", "unsubscribe", "cancel", "end", "quit"])(
+    "should allow user or guest to opt out with %s",
+    async (keyword) => {
+      const status = {
+        ...mockStatus,
+        users: { "+12223334444": "Alice" },
+        guests: { "+19998887777": "Charlie" },
+      };
+      const context = createMockContext(status);
+      const event = { From: "+19998887777", Body: keyword } as any;
+      const callback = createMockCallback();
+
+      await handler(context, event, callback);
+
+      const twiml = callback.mock.calls[0][1] as any;
+      expect(twiml.message).toHaveBeenCalledWith(
+        "Chatterbox: You have been unsubscribed and will receive no further messages. 🛑 Reply STOP to opt out.",
+      );
+      expect(
+        context.getTwilioClient().sync.v1.services().documents().update,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            guests: {},
+          }),
+        }),
+      );
+    },
+  );
+
   it("should allow guest to unlock", async () => {
     const context = createMockContext(mockStatus);
     const event = { From: "+19998887777", Body: "unlock" } as any;
+    const callback = createMockCallback();
+
+    await handler(context, event, callback);
+
+    const twiml = callback.mock.calls[0][1] as any;
+    expect(twiml.message).toHaveBeenCalledWith(
+      expect.stringContaining("You added 5 minutes!"),
+    );
+  });
+
+  it("should handle 'unlock' command", async () => {
+    const context = createMockContext(mockStatus);
+    const event = { From: "+12223334444", Body: "unlock" } as any;
     const callback = createMockCallback();
 
     await handler(context, event, callback);
@@ -90,32 +165,6 @@ describe("sms handler", () => {
       expect.objectContaining({
         data: expect.objectContaining({ allowMultipleOpens: true }),
       }),
-    );
-  });
-
-  it("should handle 'status' command", async () => {
-    const context = createMockContext(mockStatus);
-    const event = { From: "+12223334444", Body: "status" } as any;
-    const callback = createMockCallback();
-
-    await handler(context, event, callback);
-
-    const twiml = callback.mock.calls[0][1] as any;
-    expect(twiml.message).toHaveBeenCalledWith(
-      expect.stringContaining('users: {"+12223334444":"Alice"}'),
-    );
-  });
-
-  it("should handle 'lock' command", async () => {
-    const context = createMockContext(mockStatus);
-    const event = { From: "+12223334444", Body: "lock" } as any;
-    const callback = createMockCallback();
-
-    await handler(context, event, callback);
-
-    const twiml = callback.mock.calls[0][1] as any;
-    expect(twiml.message).toHaveBeenCalledWith(
-      expect.stringContaining("The door's locked"),
     );
   });
 
@@ -174,6 +223,19 @@ describe("sms handler", () => {
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
       expect.stringContaining("Syntax: AddUser"),
+    );
+  });
+
+  it("should handle 'lock' command", async () => {
+    const context = createMockContext(mockStatus);
+    const event = { From: "+12223334444", Body: "lock" } as any;
+    const callback = createMockCallback();
+
+    await handler(context, event, callback);
+
+    const twiml = callback.mock.calls[0][1] as any;
+    expect(twiml.message).toHaveBeenCalledWith(
+      expect.stringContaining("The door's locked"),
     );
   });
 
@@ -297,16 +359,16 @@ describe("sms handler", () => {
     );
   });
 
-  it("should handle 'unlock' command", async () => {
+  it("should handle 'status' command", async () => {
     const context = createMockContext(mockStatus);
-    const event = { From: "+12223334444", Body: "unlock" } as any;
+    const event = { From: "+12223334444", Body: "status" } as any;
     const callback = createMockCallback();
 
     await handler(context, event, callback);
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      expect.stringContaining("You added 5 minutes!"),
+      expect.stringContaining('users: {"+12223334444":"Alice"}'),
     );
   });
 
