@@ -33,7 +33,7 @@ async function main(
 ): Promise<string> {
   const status = await getStatus(context);
   const message = await handleCommand(context, status, event);
-  return formatMessage(status, message);
+  return formatMessage(status, event.From, message);
 }
 
 async function handleCommand(
@@ -43,28 +43,30 @@ async function handleCommand(
 ): Promise<string> {
   const isUser = !!status.users[event.From];
   const isGuest = !!status.guests[event.From];
-
-  if (!isUser && !isGuest) return "No permissions to grant access. :(";
-
+  const isRegistered = isUser || isGuest;
   const command = event.Body.split(" ")[0].toLowerCase();
 
   switch (command) {
     case "help":
     case "info":
-      return handleHelp(status);
+      return handleHelp(status, isRegistered);
     case "start":
     case "yes":
     case "unstop":
-      return handleStart();
+      return handleStart(isRegistered);
     case "stop":
     case "stopall":
     case "unsubscribe":
     case "cancel":
     case "end":
     case "quit":
-      return handleStop(context, status, event.From);
-    case "unlock":
-      return handleUnlock(context, status, event.From, 5, false);
+      return handleStop(context, status, event.From, isRegistered);
+  }
+
+  if (!isRegistered) return "No permissions to grant access. :(";
+
+  if (command === "unlock") {
+    return handleUnlock(context, status, event.From, 5, false);
   }
 
   if (isGuest) return "Guests can only use the 'unlock' command. 🔒";
@@ -100,14 +102,20 @@ async function handleCommand(
   }
 }
 
-function handleHelp(status: Status): string {
+function handleHelp(status: Status, isRegistered: boolean): string {
+  if (!isRegistered) {
+    return "Contact the household owner for support. 🛟";
+  }
   return (
     "Text 'unlock' (or a number of minutes) to unlock the door, or 'lock' to lock it. " +
     `Contact the household owner at ${status.phoneNumber} for support. 🛟`
   );
 }
 
-function handleStart(): string {
+function handleStart(isRegistered: boolean): string {
+  if (!isRegistered) {
+    return "Messaging is enabled! Contact the household owner to be added to intercom alerts. 🟢";
+  }
   return (
     "You are subscribed to intercom alerts. Message frequency varies. " +
     "Message and data rates may apply. Reply HELP for help. 🟢"
@@ -118,15 +126,21 @@ async function handleStop(
   context: Context,
   status: Status,
   from: string,
+  isRegistered: boolean,
 ): Promise<string> {
-  delete status.users[from];
-  delete status.guests[from];
-  await updateStatus(context, status, {
-    guests: status.guests,
-    users: status.users,
-  });
+  if (isRegistered) {
+    delete status.users[from];
+    delete status.guests[from];
+    await updateStatus(context, status, {
+      guests: status.guests,
+      users: status.users,
+    });
+  }
 
-  return "You have been unsubscribed and will receive no further messages. 🛑";
+  return (
+    "You have been unsubscribed and will receive no further messages. 🛑 " +
+    "Reply START and contact the household owner to resubscribe."
+  );
 }
 
 async function handleUnlock(
@@ -145,7 +159,7 @@ async function handleUnlock(
   const timeOptions = { timeZone: "America/Los_Angeles" };
   const timeString = lockTime.toLocaleTimeString("en-US", timeOptions);
   return (
-    `You added ${minutes} minutes! 🐿 ` +
+    `You added ${minutes} minutes! 🐿️ ` +
     `The door's unlocked until ${timeString}.`
   );
 }
@@ -166,7 +180,7 @@ async function handleAddGuest(
   const newStatus = { guests: { ...status.guests, [number]: name } };
   await updateStatus(context, status, newStatus);
 
-  return `Added guest ${name} at ${number}. 🐿`;
+  return `Added guest ${name} at ${number}. 🐿️`;
 }
 
 async function handleAddUser(

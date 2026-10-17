@@ -21,21 +21,8 @@ describe("sms handler", () => {
     jest.useRealTimers();
   });
 
-  it("should deny access if not a user or guest", async () => {
-    const context = createMockContext(mockStatus);
-    const event = { From: "+10000000000", Body: "status" } as any;
-    const callback = createMockCallback();
-
-    await handler(context, event, callback);
-
-    const twiml = callback.mock.calls[0][1] as any;
-    expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: No permissions to grant access. :( Reply STOP to opt out.",
-    );
-  });
-
   it.each(["HELP", "info"])(
-    "should handle %s keyword for users and guests",
+    "should handle %s keyword for registered users and guests",
     async (keyword) => {
       const context = createMockContext(mockStatus);
       const event = { From: "+19998887777", Body: keyword } as any;
@@ -50,8 +37,24 @@ describe("sms handler", () => {
     },
   );
 
+  it.each(["HELP", "info"])(
+    "should handle %s keyword for unregistered numbers",
+    async (keyword) => {
+      const context = createMockContext(mockStatus);
+      const event = { From: "+10000000000", Body: keyword } as any;
+      const callback = createMockCallback();
+
+      await handler(context, event, callback);
+
+      const twiml = callback.mock.calls[0][1] as any;
+      expect(twiml.message).toHaveBeenCalledWith(
+        "Chatterbox: Contact the household owner for support. 🛟",
+      );
+    },
+  );
+
   it.each(["START", "yes", "unstop"])(
-    "should handle %s keyword for users and guests",
+    "should handle %s keyword for registered users and guests",
     async (keyword) => {
       const context = createMockContext(mockStatus);
       const event = { From: "+19998887777", Body: keyword } as any;
@@ -66,8 +69,24 @@ describe("sms handler", () => {
     },
   );
 
+  it.each(["START", "yes", "unstop"])(
+    "should handle %s keyword for unregistered numbers",
+    async (keyword) => {
+      const context = createMockContext(mockStatus);
+      const event = { From: "+10000000000", Body: keyword } as any;
+      const callback = createMockCallback();
+
+      await handler(context, event, callback);
+
+      const twiml = callback.mock.calls[0][1] as any;
+      expect(twiml.message).toHaveBeenCalledWith(
+        "Chatterbox: Messaging is enabled! Contact the household owner to be added to intercom alerts. 🟢",
+      );
+    },
+  );
+
   it.each(["STOP", "stopall", "unsubscribe", "cancel", "end", "quit"])(
-    "should allow user or guest to opt out with %s",
+    "should allow registered user or guest to opt out with %s",
     async (keyword) => {
       const status = {
         ...mockStatus,
@@ -82,7 +101,7 @@ describe("sms handler", () => {
 
       const twiml = callback.mock.calls[0][1] as any;
       expect(twiml.message).toHaveBeenCalledWith(
-        "Chatterbox: You have been unsubscribed and will receive no further messages. 🛑 Reply STOP to opt out.",
+        "Chatterbox: You have been unsubscribed and will receive no further messages. 🛑 Reply START and contact the household owner to resubscribe.",
       );
       expect(
         context.getTwilioClient().sync.v1.services().documents().update,
@@ -95,6 +114,38 @@ describe("sms handler", () => {
       );
     },
   );
+
+  it.each(["STOP", "stopall", "unsubscribe", "cancel", "end", "quit"])(
+    "should handle %s keyword for unregistered numbers without updating status",
+    async (keyword) => {
+      const context = createMockContext(mockStatus);
+      const event = { From: "+10000000000", Body: keyword } as any;
+      const callback = createMockCallback();
+
+      await handler(context, event, callback);
+
+      const twiml = callback.mock.calls[0][1] as any;
+      expect(twiml.message).toHaveBeenCalledWith(
+        "Chatterbox: You have been unsubscribed and will receive no further messages. 🛑 Reply START and contact the household owner to resubscribe.",
+      );
+      expect(
+        context.getTwilioClient().sync.v1.services().documents().update,
+      ).not.toHaveBeenCalled();
+    },
+  );
+
+  it("should deny access if not a user or guest", async () => {
+    const context = createMockContext(mockStatus);
+    const event = { From: "+10000000000", Body: "status" } as any;
+    const callback = createMockCallback();
+
+    await handler(context, event, callback);
+
+    const twiml = callback.mock.calls[0][1] as any;
+    expect(twiml.message).toHaveBeenCalledWith(
+      "Chatterbox: No permissions to grant access. :(",
+    );
+  });
 
   it("should allow guest to unlock", async () => {
     const context = createMockContext(mockStatus);
@@ -180,7 +231,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: Added guest Dave at +14155551234. 🐿 Reply STOP to opt out.",
+      "Chatterbox: Added guest Dave at +14155551234. 🐿️ Reply STOP to opt out.",
     );
   });
 

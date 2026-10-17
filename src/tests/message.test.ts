@@ -12,13 +12,24 @@ describe("message utility", () => {
       "+12223334444": "Alice",
       "+15556667777": "Bob",
     },
-    guests: {},
+    guests: {
+      "+19998887777": "Charlie",
+    },
   };
 
   describe("formatMessage", () => {
-    it("should prepend brandName and append opt-out instructions", () => {
-      expect(formatMessage(baseStatus, "Hello!")).toBe(
+    it("should prepend brandName and append opt-out instructions for subscribed users and guests", () => {
+      expect(formatMessage(baseStatus, "+12223334444", "Hello!")).toBe(
         "Chatterbox: Hello! Reply STOP to opt out.",
+      );
+      expect(formatMessage(baseStatus, "+19998887777", "Hello!")).toBe(
+        "Chatterbox: Hello! Reply STOP to opt out.",
+      );
+    });
+
+    it("should not append opt-out instructions for unsubscribed numbers", () => {
+      expect(formatMessage(baseStatus, "+10000000000", "Hello!")).toBe(
+        "Chatterbox: Hello!",
       );
     });
   });
