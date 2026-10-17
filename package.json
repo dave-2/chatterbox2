@@ -15,7 +15,8 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@twilio-labs/serverless-runtime-types": "^4.0.1"
+    "@twilio-labs/serverless-runtime-types": "^4.0.1",
+    "@twilio/runtime-handler": "2.0.1"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
