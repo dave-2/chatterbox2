@@ -156,7 +156,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      expect.stringContaining("You added 5 minutes!"),
+      "Chatterbox: You added 5 minutes! 🐿️ The door's unlocked until 4:05 AM.",
     );
   });
 
@@ -169,7 +169,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      expect.stringContaining("You added 5 minutes!"),
+      "Chatterbox: You added 5 minutes! 🐿️ The door's unlocked until 4:05 AM.",
     );
   });
 
@@ -195,7 +195,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      expect.stringContaining("You added 10 minutes!"),
+      "Chatterbox: You added 10 minutes! 🐿️ The door's unlocked until 4:10 AM.",
     );
   });
 
@@ -208,7 +208,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      expect.stringContaining("You added 10 minutes!"),
+      "Chatterbox: You added 10 minutes! 🐿️ The door's unlocked until 4:10 AM.",
     );
     expect(
       context.getTwilioClient().sync.v1.services().documents().update,

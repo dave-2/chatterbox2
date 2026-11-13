@@ -156,7 +156,10 @@ async function handleUnlock(
   const newStatus = { allowMultipleOpens, lockTime, user };
   await updateStatus(context, status, newStatus);
 
-  const timeOptions = { timeZone: "America/Los_Angeles" };
+  const timeOptions: Intl.DateTimeFormatOptions = {
+    timeStyle: "short",
+    timeZone: "America/Los_Angeles",
+  };
   const timeString = lockTime.toLocaleTimeString("en-US", timeOptions);
   return (
     `You added ${minutes} minutes! 🐿️ ` +
