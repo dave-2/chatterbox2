@@ -32,7 +32,7 @@ describe("sms handler", () => {
 
       const twiml = callback.mock.calls[0][1] as any;
       expect(twiml.message).toHaveBeenCalledWith(
-        "Chatterbox: Text 'unlock' (or a number of minutes) to unlock the door, or 'lock' to lock it. Contact the household owner at +18889990000 for support. 🛟 Reply STOP to opt out.",
+        "Chatterbox: Text 'unlock' (or a number of minutes) to unlock the door, or 'lock' to lock it. Contact the household owner at +18889990000 for support. Reply STOP to opt out. 🛟",
       );
     },
   );
@@ -64,7 +64,7 @@ describe("sms handler", () => {
 
       const twiml = callback.mock.calls[0][1] as any;
       expect(twiml.message).toHaveBeenCalledWith(
-        "Chatterbox: You are subscribed to intercom alerts. Message frequency varies. Message and data rates may apply. Reply HELP for help. 🟢 Reply STOP to opt out.",
+        "Chatterbox: You are subscribed to intercom alerts. Message frequency varies. Message and data rates may apply. Reply HELP for help. Reply STOP to opt out. 🟢",
       );
     },
   );
@@ -182,7 +182,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: Guests can only use the 'unlock' command. 🔒 Reply STOP to opt out.",
+      "Chatterbox: Guests can only use the 'unlock' command. 🔒",
     );
   });
 
@@ -231,7 +231,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: Added guest Dave at +14155551234. 🐿️ Reply STOP to opt out.",
+      "Chatterbox: Added guest Dave at +14155551234. 🐿️",
     );
   });
 
@@ -260,7 +260,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: Added Dave at +14155551234. 🦆 Reply STOP to opt out.",
+      "Chatterbox: Added Dave at +14155551234. 🦆",
     );
   });
 
@@ -300,7 +300,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: I don't know guest Charlie. 🐢 Reply STOP to opt out.",
+      "Chatterbox: I don't know guest Charlie. 🐢",
     );
   });
 
@@ -320,7 +320,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: Removed guest Charlie. 🦆 Reply STOP to opt out.",
+      "Chatterbox: Removed guest Charlie. 🦆",
     );
   });
 
@@ -333,7 +333,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: I don't know guest Unknown. 🐢 Reply STOP to opt out.",
+      "Chatterbox: I don't know guest Unknown. 🐢",
     );
   });
 
@@ -346,7 +346,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: Syntax: RemoveGuest <name> Reply STOP to opt out.",
+      "Chatterbox: Syntax: RemoveGuest <name>",
     );
   });
 
@@ -367,7 +367,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: Removed Charlie. 🦆 Reply STOP to opt out.",
+      "Chatterbox: Removed Charlie. 🦆",
     );
   });
 
@@ -380,7 +380,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: Can't remove yourself, dummy! 🐓 Reply STOP to opt out.",
+      "Chatterbox: Can't remove yourself, dummy! 🐓",
     );
   });
 
@@ -393,7 +393,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: Syntax: RemoveUser <name> Reply STOP to opt out.",
+      "Chatterbox: Syntax: RemoveUser <name>",
     );
   });
 
@@ -406,7 +406,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: I don't know Unknown. 🐢 Reply STOP to opt out.",
+      "Chatterbox: I don't know Unknown. 🐢",
     );
   });
 
@@ -432,7 +432,7 @@ describe("sms handler", () => {
 
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
-      "Chatterbox: Could not understand. 🐼 Try giving me a number. Reply STOP to opt out.",
+      "Chatterbox: Could not understand. 🐼 Try giving me a number.",
     );
   });
 

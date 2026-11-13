@@ -18,19 +18,8 @@ describe("message utility", () => {
   };
 
   describe("formatMessage", () => {
-    it("should prepend brandName and append opt-out instructions for subscribed users and guests", () => {
-      expect(formatMessage(baseStatus, "+12223334444", "Hello!")).toBe(
-        "Chatterbox: Hello! Reply STOP to opt out.",
-      );
-      expect(formatMessage(baseStatus, "+19998887777", "Hello!")).toBe(
-        "Chatterbox: Hello! Reply STOP to opt out.",
-      );
-    });
-
-    it("should not append opt-out instructions for unsubscribed numbers", () => {
-      expect(formatMessage(baseStatus, "+10000000000", "Hello!")).toBe(
-        "Chatterbox: Hello!",
-      );
+    it("should prepend brandName to messages", () => {
+      expect(formatMessage(baseStatus, "Hello!")).toBe("Chatterbox: Hello!");
     });
   });
 
@@ -48,12 +37,12 @@ describe("message utility", () => {
 
       expect(client.messages.create).toHaveBeenCalledTimes(2);
       expect(client.messages.create).toHaveBeenCalledWith({
-        body: "Chatterbox: Hello Alice! Reply STOP to opt out.",
+        body: "Chatterbox: Hello Alice!",
         from: "+18889990000",
         to: "+12223334444",
       });
       expect(client.messages.create).toHaveBeenCalledWith({
-        body: "Chatterbox: Hello Bob! Reply STOP to opt out.",
+        body: "Chatterbox: Hello Bob!",
         from: "+18889990000",
         to: "+15556667777",
       });

@@ -31,12 +31,12 @@ describe("dialCallback handler", () => {
     const client = context.getTwilioClient();
     expect(client.messages.create).toHaveBeenCalledTimes(2);
     expect(client.messages.create).toHaveBeenCalledWith({
-      body: "Chatterbox: You answered the door. 🐕 Reply STOP to opt out.",
+      body: "Chatterbox: You answered the door. 🐕",
       from: mockStatus.phoneNumber,
       to: "+15556667777",
     });
     expect(client.messages.create).toHaveBeenCalledWith({
-      body: "Chatterbox: Bob answered the door. 🐕 Reply STOP to opt out.",
+      body: "Chatterbox: Bob answered the door. 🐕",
       from: mockStatus.phoneNumber,
       to: "+12223334444",
     });

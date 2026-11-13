@@ -33,7 +33,7 @@ async function main(
 ): Promise<string> {
   const status = await getStatus(context);
   const message = await handleCommand(context, status, event);
-  return formatMessage(status, event.From, message);
+  return formatMessage(status, message);
 }
 
 async function handleCommand(
@@ -108,7 +108,7 @@ function handleHelp(status: Status, isRegistered: boolean): string {
   }
   return (
     "Text 'unlock' (or a number of minutes) to unlock the door, or 'lock' to lock it. " +
-    `Contact the household owner at ${status.phoneNumber} for support. 🛟`
+    `Contact the household owner at ${status.phoneNumber} for support. Reply STOP to opt out. 🛟`
   );
 }
 
@@ -118,7 +118,7 @@ function handleStart(isRegistered: boolean): string {
   }
   return (
     "You are subscribed to intercom alerts. Message frequency varies. " +
-    "Message and data rates may apply. Reply HELP for help. 🟢"
+    "Message and data rates may apply. Reply HELP for help. Reply STOP to opt out. 🟢"
   );
 }
 
