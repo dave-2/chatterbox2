@@ -27,8 +27,9 @@ export const handler: ServerlessFunctionSignature<{}, RequestParameters> =
 
 async function main(context: Context, event: RequestParameters) {
   const status = await getStatus(context);
+  const now = new Date();
 
-  if (new Date(status.lockTime) > new Date()) {
+  if (new Date(status.unlockTime) <= now && now < new Date(status.lockTime)) {
     return handleOpen(context, status);
   }
 
@@ -52,7 +53,7 @@ async function handleOpen(context: Context, status: Status) {
   );
 
   if (!status.allowMultipleOpens) {
-    const newStatus = { lockTime: new Date() };
+    const newStatus = { unlockTime: new Date(0), lockTime: new Date() };
     await updateStatus(context, status, newStatus);
   }
 

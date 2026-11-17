@@ -219,6 +219,83 @@ describe("sms handler", () => {
     );
   });
 
+  it("should allow user to schedule unlock with '<minutes> at <H:MM>'", async () => {
+    const context = createMockContext(mockStatus);
+    const event = { From: "+12223334444", Body: "15 at 15:00" } as any;
+    const callback = createMockCallback();
+
+    await handler(context, event, callback);
+
+    const twiml = callback.mock.calls[0][1] as any;
+    expect(twiml.message).toHaveBeenCalledWith(
+      "Chatterbox: Scheduled 15 minutes! 🐿️ The door will unlock from 3:00 PM to 3:15 PM.",
+    );
+    expect(
+      context.getTwilioClient().sync.v1.services().documents().update,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          allowMultipleOpens: false,
+          unlockTime: new Date("2023-01-01T23:00:00.000Z"),
+          lockTime: new Date("2023-01-01T23:15:00.000Z"),
+        }),
+      }),
+    );
+  });
+
+  it("should roll schedules earlier than now to tomorrow", async () => {
+    const context = createMockContext(mockStatus);
+    const event = { From: "+12223334444", Body: "10+ at 2:00 AM" } as any;
+    const callback = createMockCallback();
+
+    await handler(context, event, callback);
+
+    const twiml = callback.mock.calls[0][1] as any;
+    expect(twiml.message).toHaveBeenCalledWith(
+      "Chatterbox: Scheduled 10 minutes! 🐿️ The door will unlock from 2:00 AM to 2:10 AM.",
+    );
+    expect(
+      context.getTwilioClient().sync.v1.services().documents().update,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          allowMultipleOpens: true,
+          unlockTime: new Date("2023-01-02T10:00:00.000Z"),
+          lockTime: new Date("2023-01-02T10:10:00.000Z"),
+        }),
+      }),
+    );
+  });
+
+  it("should deny guest from scheduling unlocks", async () => {
+    const context = createMockContext(mockStatus);
+    const event = { From: "+19998887777", Body: "15 at 15:00" } as any;
+    const callback = createMockCallback();
+
+    await handler(context, event, callback);
+
+    const twiml = callback.mock.calls[0][1] as any;
+    expect(twiml.message).toHaveBeenCalledWith(
+      "Chatterbox: Guests can only use the 'unlock' command. 🔒",
+    );
+  });
+
+  it.each(["10 at", "10 later 15:00", "10 at 3pm", "10 at 99:99"])(
+    "should return syntax error for invalid schedule command '%s'",
+    async (body) => {
+      const context = createMockContext(mockStatus);
+      const event = { From: "+12223334444", Body: body } as any;
+      const callback = createMockCallback();
+
+      await handler(context, event, callback);
+
+      const twiml = callback.mock.calls[0][1] as any;
+      expect(twiml.message).toHaveBeenCalledWith(
+        "Chatterbox: Syntax: <minutes>[+] at <H:MM [AM|PM] (Ex: 30 at 15:00 or 30+ at 3:00 PM)>",
+      );
+    },
+  );
+
   it("should handle 'addguest' command", async () => {
     const context = createMockContext(mockStatus);
     const event = {
@@ -287,6 +364,16 @@ describe("sms handler", () => {
     const twiml = callback.mock.calls[0][1] as any;
     expect(twiml.message).toHaveBeenCalledWith(
       expect.stringContaining("The door's locked"),
+    );
+    expect(
+      context.getTwilioClient().sync.v1.services().documents().update,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          allowMultipleOpens: false,
+          unlockTime: new Date(0),
+        }),
+      }),
     );
   });
 

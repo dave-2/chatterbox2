@@ -5,8 +5,9 @@ describe("message utility", () => {
   const baseStatus = {
     allowMultipleOpens: false,
     brandName: "Chatterbox",
-    lockTime: new Date(0),
     phoneNumber: "+18889990000",
+    unlockTime: new Date(0),
+    lockTime: new Date(0),
     user: "",
     users: {
       "+12223334444": "Alice",

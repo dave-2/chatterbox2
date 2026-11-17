@@ -36,6 +36,8 @@ async function main(
   return formatMessage(status, message);
 }
 
+const TIME_ZONE = "America/Los_Angeles";
+
 async function handleCommand(
   context: Context,
   status: Status,
@@ -71,16 +73,36 @@ async function handleCommand(
 
   if (isGuest) return "Guests can only use the 'unlock' command. 🔒";
 
-  const match = /^([0-9]+)(\+?)/.exec(command);
+  const match = /^([0-9]+)(\+?)(?:\s+(.+))?$/.exec(event.Body.trim());
   if (match) {
     const minutes = Number(match[1]);
     const allowMultipleOpens = Boolean(match[2]);
+    const scheduleArgs = match[3];
+    if (!scheduleArgs) {
+      return handleUnlock(
+        context,
+        status,
+        event.From,
+        minutes,
+        allowMultipleOpens,
+      );
+    }
+
+    const atMatch = /^at (\d{1,2}:\d{2}(?: (?:am|pm))?)$/i.exec(scheduleArgs);
+    const unlockTime = atMatch ? parseTime(atMatch[1]) : null;
+    if (!unlockTime) {
+      return (
+        "Syntax: <minutes>[+] at <H:MM [AM|PM] " +
+        "(Ex: 30 at 15:00 or 30+ at 3:00 PM)>"
+      );
+    }
     return handleUnlock(
       context,
       status,
       event.From,
       minutes,
       allowMultipleOpens,
+      unlockTime,
     );
   }
 
@@ -143,27 +165,50 @@ async function handleStop(
   );
 }
 
+/** Parses a time string (H:MM or H:MM AM/PM) for today or tomorrow in TIME_ZONE. */
+function parseTime(timeStr: string): Date | null {
+  const now = new Date();
+  const localNow = new Date(
+    now.toLocaleString("en-US", { timeZone: TIME_ZONE }),
+  );
+  const target = new Date(`${localNow.toDateString()} ${timeStr}`);
+  if (isNaN(target.getTime())) return null;
+
+  if (target <= localNow) target.setDate(target.getDate() + 1);
+  return new Date(now.getTime() + (target.getTime() - localNow.getTime()));
+}
+
 async function handleUnlock(
   context: Context,
   status: Status,
   user: string,
   minutes: number,
   allowMultipleOpens: boolean,
+  scheduledTime?: Date,
 ): Promise<string> {
-  const lockTime = new Date();
-  lockTime.setMinutes(lockTime.getMinutes() + minutes);
+  const unlockTime = scheduledTime ?? new Date();
+  const lockTime = new Date(unlockTime.getTime() + minutes * 60000);
 
-  const newStatus = { allowMultipleOpens, lockTime, user };
+  const newStatus = { allowMultipleOpens, unlockTime, lockTime, user };
   await updateStatus(context, status, newStatus);
 
   const timeOptions: Intl.DateTimeFormatOptions = {
     timeStyle: "short",
-    timeZone: "America/Los_Angeles",
+    timeZone: TIME_ZONE,
   };
-  const timeString = lockTime.toLocaleTimeString("en-US", timeOptions);
+  const endString = lockTime.toLocaleTimeString("en-US", timeOptions);
+
+  if (scheduledTime) {
+    const startString = unlockTime.toLocaleTimeString("en-US", timeOptions);
+    return (
+      `Scheduled ${minutes} minutes! 🐿️ ` +
+      `The door will unlock from ${startString} to ${endString}.`
+    );
+  }
+
   return (
     `You added ${minutes} minutes! 🐿️ ` +
-    `The door's unlocked until ${timeString}.`
+    `The door's unlocked until ${endString}.`
   );
 }
 
@@ -210,7 +255,12 @@ async function handleLock(
   status: Status,
   user: string,
 ): Promise<string> {
-  const newStatus = { allowMultipleOpens: false, lockTime: new Date(), user };
+  const newStatus = {
+    allowMultipleOpens: false,
+    unlockTime: new Date(0),
+    lockTime: new Date(),
+    user,
+  };
   await updateStatus(context, status, newStatus);
 
   return (

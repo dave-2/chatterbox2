@@ -60,6 +60,23 @@ describe("voice handler", () => {
     // TwiML verification would be better if we exported the classes or had better mocks
   });
 
+  it("should dial users when unlock is scheduled for the future", async () => {
+    const status = {
+      ...mockStatus,
+      unlockTime: new Date(Date.now() + 5 * 60000).toISOString(),
+      lockTime: new Date(Date.now() + 10 * 60000).toISOString(),
+    };
+    const context = createMockContext(status);
+    const event = {} as any;
+    const callback = createMockCallback();
+
+    await handler(context, event, callback);
+
+    const client = context.getTwilioClient();
+    expect(client.messages.create).not.toHaveBeenCalled();
+    expect(callback).toHaveBeenCalledWith(null, expect.any(Object));
+  });
+
   it("should lock the door after opening if allowMultipleOpens is false", async () => {
     const status = {
       ...mockStatus,

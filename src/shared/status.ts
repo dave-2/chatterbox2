@@ -3,8 +3,9 @@ import type { Context } from "@twilio-labs/serverless-runtime-types/types";
 export type Status = {
   allowMultipleOpens: boolean;
   brandName: string;
-  lockTime: Date;
   phoneNumber: string;
+  unlockTime: Date;
+  lockTime: Date;
   user: string;
   users: { [number: string]: string };
   guests: { [number: string]: string };
@@ -15,8 +16,9 @@ const SYNC_DOCUMENT_NAME = "status";
 const DEFAULT_STATUS: Status = {
   allowMultipleOpens: false,
   brandName: "Chatterbox",
-  lockTime: new Date(0),
   phoneNumber: "",
+  unlockTime: new Date(0),
+  lockTime: new Date(0),
   user: "",
   users: {},
   guests: {},
